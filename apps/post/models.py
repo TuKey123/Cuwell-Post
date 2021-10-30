@@ -5,6 +5,9 @@ from django.db import models
 class Category(models.Model):
     name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.name
+
 
 class Post(models.Model):
     class Status(models.IntegerChoices):
@@ -36,6 +39,11 @@ class ReportType(models.Model):
 
     type = models.IntegerField(choices=Type.choices, default=Type.SPAM)
     description = models.CharField(max_length=300)
+
+    def __str__(self):
+        if self.type == self.Type.SPAM:
+            return 'Spam'
+        return 'Cheat'
 
 
 class PostReport(models.Model):

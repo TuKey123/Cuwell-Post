@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import django_heroku
 
@@ -65,17 +66,24 @@ WSGI_APPLICATION = 'post_service.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-
 DATABASES = {
-    "default": {
-        "ENGINE": 'django.db.backends.postgresql',
-        "NAME": 'd71h2ju0ml934h',
-        "USER": 'flpqhwupgznsgd',
-        "PASSWORD": 'a344b0634a412aaeafe8f12f3cdb2355aa170e39c4b5d1ab32fbbc8cfd8e8208',
-        "HOST": 'ec2-3-215-137-131.compute-1.amazonaws.com',
-        "PORT": 5432,
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": 'django.db.backends.postgresql',
+#         "NAME": 'd71h2ju0ml934h',
+#         "USER": 'flpqhwupgznsgd',
+#         "PASSWORD": 'a344b0634a412aaeafe8f12f3cdb2355aa170e39c4b5d1ab32fbbc8cfd8e8208',
+#         "HOST": 'ec2-3-215-137-131.compute-1.amazonaws.com',
+#         "PORT": 5432,
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
