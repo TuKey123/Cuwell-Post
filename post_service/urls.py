@@ -3,8 +3,8 @@ from drf_yasg import openapi
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
-from api import urls
 from rest_framework import permissions
+from api import urls
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -18,11 +18,11 @@ schema_view = get_schema_view(
 swagger = [
     path('api/v1/', schema_view.with_ui('swagger', cache_timeout=0),
          name='schema-swagger-ui'),
-    path(r'^redoc/$', schema_view.with_ui('redoc',
-         cache_timeout=0), name='schema-redoc'),
+    path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
 urlpatterns = [
     path('', include(swagger)),
+    path('api/v1/', include(urls)),
     path('admin/', admin.site.urls),
 ]
