@@ -6,3 +6,4 @@ drf-yasg
 django-heroku
 django-cors-headers
 jwt
+rest_framework_simplejwt
