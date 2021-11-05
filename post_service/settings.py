@@ -81,16 +81,16 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": 'django.db.backends.postgresql',
-#         "NAME": 'd71h2ju0ml934h',
-#         "USER": 'flpqhwupgznsgd',
-#         "PASSWORD": 'a344b0634a412aaeafe8f12f3cdb2355aa170e39c4b5d1ab32fbbc8cfd8e8208',
-#         "HOST": 'ec2-3-215-137-131.compute-1.amazonaws.com',
-#         "PORT": 5432,
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": 'django.db.backends.postgresql',
+        "NAME": 'debjcuv7n1giva',
+        "USER": 'hiigjsacsbthsg',
+        "PASSWORD": '84cff7d3f3b54deb4749b7f78f9fa3ceb2040539f41e71f33d6cbf01389500ef',
+        "HOST": 'ec2-3-217-91-165.compute-1.amazonaws.com',
+        "PORT": 5432,
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
