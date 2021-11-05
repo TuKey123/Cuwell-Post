@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c&9$)*-qz@+9qg4_w=!we#j^9%1nf3hsngj55@iw&dlle1__#-'
+SECRET_KEY = 'privateKey'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,7 +81,6 @@ DATABASES = {
     }
 }
 
-
 # DATABASES = {
 #     "default": {
 #         "ENGINE": 'django.db.backends.postgresql',
@@ -113,8 +112,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
 }
 
 # Internationalization
@@ -152,3 +159,13 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_HSTS_SECONDS = 3600
+
+FIREBASE_CONFIG = {
+    'apiKey': "AIzaSyAY9cTp5J5N1_m_hne4AXxE3oLZNmE3bkM",
+    'authDomain': "cuwell-a06b6.firebaseapp.com",
+    'projectId': "cuwell-a06b6",
+    'storageBucket': "cuwell-a06b6.appspot.com",
+    'messagingSenderId': "243318645532",
+    'appId': "1:243318645532:web:4fdef85ab6a8d77f3b90d9",
+    'measurementId': "G-P5PRM5VGD7"
+}
