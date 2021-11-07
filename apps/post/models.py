@@ -15,8 +15,8 @@ class Post(models.Model):
         SELL = 2
         BLOCKED = 3
 
-    user_id = models.IntegerField(validators=[MinValueValidator(1)])
-    category_id = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
+    user = models.IntegerField(validators=[MinValueValidator(1)])
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
 
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
@@ -28,8 +28,8 @@ class Post(models.Model):
 
 
 class PostImage(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
-    url = models.URLField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
+    url = models.ImageField(upload_to='posts/', blank=True)
 
 
 class ReportType(models.Model):
@@ -47,10 +47,10 @@ class ReportType(models.Model):
 
 
 class PostReport(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='reports')
-    report_id = models.ForeignKey(ReportType, on_delete=models.CASCADE, related_name='reposts')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='reports')
+    report = models.ForeignKey(ReportType, on_delete=models.CASCADE, related_name='reposts')
 
-    user_id = models.IntegerField(validators=[MinValueValidator(1)])
+    user = models.IntegerField(validators=[MinValueValidator(1)])
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.CharField(max_length=300)

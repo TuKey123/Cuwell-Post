@@ -2,6 +2,16 @@ from rest_framework import serializers
 from . import models
 
 
+# EXTRA FUNC
+def less_than_2mb(image):
+    # convert to Mb
+    size = image.size / (1024 ** 2)
+
+    if size > 2:
+        return False
+    return True
+
+
 class PostImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PostImage
@@ -24,17 +34,56 @@ class PostDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PostCreationSerializer(serializers.Serializer):
-    images = serializers.FileField(required=False)
-    title = serializers.CharField(max_length=100)
-    description = serializers.CharField(max_length=100)
-    price = serializers.FloatField(min_value=1)
+class PostAlterationSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False)
 
-    def update(self, instance, validated_data):
-        pass
+    def validate(self, attrs):
+        image = attrs.get('image', None)
+
+        if not image:
+            return super().validate(attrs)
+        elif not less_than_2mb(image):
+            raise serializers.ValidationError('image must be less than 2mb')
+
+        return super().validate(attrs)
 
     def create(self, validated_data):
-        pass
+        data = validated_data.copy()
+        image = data.pop('image')
+
+        post = models.Post.objects.create(**data)
+        post_image = models.PostImage.objects.create(url=image, post=post)
+
+        validated_data['image'] = post_image.url
+
+        return validated_data
+
+    class Meta:
+        model = models.Post
+        fields = ['title', 'description', 'price', 'user', 'category', 'image']
+
+
+class PostPartialSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False)
+
+    def validate(self, attrs):
+        image = attrs.get('image', None)
+
+        if not image:
+            return super().validate(attrs)
+        elif not less_than_2mb(image):
+            raise serializers.ValidationError('image must be less than 2mb')
+
+        return super().validate(attrs)
+
+    class Meta:
+        model = models.Post
+        fields = ['title', 'description', 'price', 'user', 'category', 'image']
+        extra_kwargs = {'title': {'required': False},
+                        'description': {'required': False},
+                        'user': {'required': False},
+                        'category': {'required': False},
+                        'price': {'required': False}}
 
 
 class CategorySerializer(serializers.ModelSerializer):

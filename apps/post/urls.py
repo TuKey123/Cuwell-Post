@@ -5,10 +5,7 @@ from . import views
 from rest_framework_simplejwt import views as jwt_views
 
 posts = DefaultRouter()
-posts.register('', views.PostViewSet)
-
-file = DefaultRouter()
-file.register('', views.FileUploadView)
+posts.register('', views.PostCreateViewSet)
 
 categories = DefaultRouter()
 categories.register('', views.CategoryViewSet)
@@ -25,5 +22,4 @@ urlpatterns = [
     path('categories/', include(categories.urls)),
     path('report-types/', include(report_types.urls)),
     path('post-reposts/', include(post_reports.urls)),
-    path('file-upload/', include(file.urls)),
 ]

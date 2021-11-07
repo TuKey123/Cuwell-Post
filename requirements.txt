@@ -7,3 +7,5 @@ django-heroku
 django-cors-headers
 jwt
 djangorestframework-simplejwt
+django-cloudinary-storage
+Pillow

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_yasg',
+    'cloudinary_storage',
     'apps.post',
     'apps.order',
 ]
@@ -74,12 +75,12 @@ WSGI_APPLICATION = 'post_service.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 DATABASES = {
     "default": {
@@ -160,12 +161,12 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_HSTS_SECONDS = 3600
 
-FIREBASE_CONFIG = {
-    'apiKey': "AIzaSyAY9cTp5J5N1_m_hne4AXxE3oLZNmE3bkM",
-    'authDomain': "cuwell-a06b6.firebaseapp.com",
-    'projectId': "cuwell-a06b6",
-    'storageBucket': "cuwell-a06b6.appspot.com",
-    'messagingSenderId': "243318645532",
-    'appId': "1:243318645532:web:4fdef85ab6a8d77f3b90d9",
-    'measurementId': "G-P5PRM5VGD7"
+MEDIA_URL = '/media/'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'cuwell',
+    'API_KEY': '971114791582729',
+    'API_SECRET': 'YnOq6CzsQ_UqpBT94J9HI4HATkA'
 }
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
