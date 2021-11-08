@@ -1,4 +1,7 @@
-from rest_framework import serializers
+from django.db import transaction
+from rest_framework import serializers, status
+from rest_framework.response import Response
+
 from . import models
 
 
@@ -15,7 +18,7 @@ def less_than_2mb(image):
 class PostImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PostImage
-        fields = ['url']
+        fields = ['id', 'url']
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -34,56 +37,95 @@ class PostDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PostAlterationSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False)
+class PostCreationSerializer(serializers.ModelSerializer):
+    def validate_images(self):
+        images = self.initial_data.getlist('images', None)
+
+        if not images:
+            return True
+        elif len(images) > 3:
+            return False
+
+        for image in images:
+            if not less_than_2mb(image):
+                return False
+
+        return True
 
     def validate(self, attrs):
-        image = attrs.get('image', None)
-
-        if not image:
-            return super().validate(attrs)
-        elif not less_than_2mb(image):
+        if not self.validate_images():
             raise serializers.ValidationError('image must be less than 2mb')
 
         return super().validate(attrs)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['images'] = instance['images']
+
+        return representation
 
     def create(self, validated_data):
         data = validated_data.copy()
-        image = data.pop('image')
+        images = self.initial_data.getlist('images', None)
+        try:
+            with transaction.atomic():
+                user_id = 1
+                post = models.Post.objects.create(**data, user_id=user_id)
 
-        post = models.Post.objects.create(**data)
-        post_image = models.PostImage.objects.create(url=image, post=post)
+                post_images = []
+                for image in images:
+                    post_image = models.PostImage.objects.create(url=image, post=post)
+                    post_images.append(post_image)
 
-        validated_data['image'] = post_image.url
-
-        return validated_data
+                validated_data['images'] = list(map(lambda x: {'url': x.url.url}, post_images))
+                return validated_data
+        except Exception as e:
+            raise serializers.ValidationError('can not create post')
 
     class Meta:
         model = models.Post
-        fields = ['title', 'description', 'price', 'user', 'category', 'image']
+        fields = ['title', 'description', 'price', 'category', 'quantity']
 
 
 class PostPartialSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False)
+    class Meta:
+        model = models.Post
+        fields = ['title', 'description', 'price', 'category', 'quantity']
+        extra_kwargs = {
+            'title': {'required': False},
+            'description': {'required': False},
+            'category': {'required': False},
+            'price': {'required': False},
+            'quantity': {'required': False}
+        }
 
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Post
+        fields = ['title', 'description', 'price', 'category', 'quantity']
+
+
+class PostImageUpdateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
-        image = attrs.get('image', None)
+        image = attrs.get('url', None)
 
         if not image:
-            return super().validate(attrs)
+            raise serializers.ValidationError('image can not be none')
         elif not less_than_2mb(image):
             raise serializers.ValidationError('image must be less than 2mb')
 
         return super().validate(attrs)
 
+    def update(self, instance, validated_data):
+        instance.url = validated_data.get('url', None)
+        instance.save()
+
+        return instance
+
     class Meta:
-        model = models.Post
-        fields = ['title', 'description', 'price', 'user', 'category', 'image']
-        extra_kwargs = {'title': {'required': False},
-                        'description': {'required': False},
-                        'user': {'required': False},
-                        'category': {'required': False},
-                        'price': {'required': False}}
+        model = models.PostImage
+        fields = ['url']
 
 
 class CategorySerializer(serializers.ModelSerializer):
