@@ -1,7 +1,5 @@
 from django.db import transaction
 from rest_framework import serializers, status
-from rest_framework.response import Response
-
 from . import models
 
 
@@ -70,14 +68,17 @@ class PostCreationSerializer(serializers.ModelSerializer):
         try:
             with transaction.atomic():
                 user_id = 1
-                post = models.Post.objects.create(**data, user_id=user_id)
+                post = models.Post.objects.create(**data, user=user_id)
 
                 post_images = []
                 for image in images:
-                    post_image = models.PostImage.objects.create(url=image, post=post)
+                    post_image = models.PostImage(url=image, post=post)
                     post_images.append(post_image)
 
+                models.PostImage.objects.bulk_create(post_images)
+
                 validated_data['images'] = list(map(lambda x: {'url': x.url.url}, post_images))
+
                 return validated_data
         except Exception as e:
             raise serializers.ValidationError('can not create post')
