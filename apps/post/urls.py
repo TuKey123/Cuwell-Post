@@ -5,7 +5,7 @@ from . import views
 from rest_framework_simplejwt import views as jwt_views
 
 posts = DefaultRouter()
-posts.register('', views.PostCreateViewSet)
+posts.register('', views.PostViewSet)
 
 categories = DefaultRouter()
 categories.register('', views.CategoryViewSet)

@@ -1,16 +1,19 @@
+from asgiref.sync import sync_to_async
 from rest_framework import viewsets, mixins, views, status
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
+from core.Authentication import Authentication
 
 from . import serializers
 from . import models
 
 
-class PostCreateViewSet(viewsets.ModelViewSet):
+class PostViewSet(viewsets.ModelViewSet):
     queryset = models.Post.objects.all()
     parser_classes = [MultiPartParser, FormParser]
+    authentication_classes = [Authentication]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -43,6 +46,7 @@ class PostCreateViewSet(viewsets.ModelViewSet):
         except Error as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @sync_to_async
     @action(detail=False, methods=['put'], url_path=r'update_image/(?P<image_id>\d+)')
     def update_image(self, request, image_id=None):
         image_instance = models.PostImage.objects.get(id=image_id)

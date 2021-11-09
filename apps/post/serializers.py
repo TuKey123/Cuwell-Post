@@ -1,6 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers, status
 from . import models
+import asyncio
 
 
 # EXTRA FUNC
@@ -77,7 +78,7 @@ class PostCreationSerializer(serializers.ModelSerializer):
 
                 models.PostImage.objects.bulk_create(post_images)
 
-                validated_data['images'] = list(map(lambda x: {'url': x.url.url}, post_images))
+                validated_data['images'] = list(map(lambda x: {'id': x.id, 'url': x.url.url}, post_images))
 
                 return validated_data
         except Exception as e:
@@ -118,7 +119,12 @@ class PostImageUpdateSerializer(serializers.ModelSerializer):
 
         return super().validate(attrs)
 
-    def update(self, instance, validated_data):
+    async def delete_image_cloud(self, instance):
+        instance.url.delete()
+
+    async def update(self, instance, validated_data):
+        asyncio.create_task(self.delete_image_cloud(instance))
+        print(1111)
         instance.url = validated_data.get('url', None)
         instance.save()
 
