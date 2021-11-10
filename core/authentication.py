@@ -17,7 +17,6 @@ class Authentication(BaseAuthentication):
     def authenticate(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         # token = token.split(' ')[1]
-
         user = verify_token(token)
 
         if not user:

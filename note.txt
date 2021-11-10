@@ -1,0 +1,12 @@
+Django==3.2.6
+psycopg2-binary==2.9.1
+djangorestframework~=3.12.4
+gunicorn==20.0.4
+drf-yasg
+django-heroku
+django-cors-headers
+jwt
+djangorestframework-simplejwt
+django-cloudinary-storage
+Pillow
+jwt
