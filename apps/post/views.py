@@ -12,8 +12,7 @@ from . import models
 class PostViewSet(viewsets.ModelViewSet):
     queryset = models.Post.objects.all()
     parser_classes = [MultiPartParser, FormParser]
-
-    # authentication_classes = [Authentication]
+    authentication_classes = [Authentication]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -85,11 +84,7 @@ class ReportTypeViewSet(viewsets.GenericViewSet,
                         mixins.DestroyModelMixin):
     serializer_class = serializers.ReportTypeSerializer
     queryset = models.ReportType.objects.all()
-
-    def list(self, request, *args, **kwargs):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        return Response(data=token, status=status.HTTP_200_OK)
-    # authentication_classes = [Authentication]
+    authentication_classes = [Authentication]
 
 
 class PostReportViewSet(viewsets.GenericViewSet,

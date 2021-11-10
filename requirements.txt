@@ -9,3 +9,4 @@ jwt
 djangorestframework-simplejwt
 django-cloudinary-storage
 Pillow
+jwt
