@@ -16,8 +16,9 @@ def verify_token(token):
 class Authentication(BaseAuthentication):
     def authenticate(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
+        token = token.split(' ')[1]
+
         user = verify_token(token)
-        print(user)
         if not user:
             raise exceptions.AuthenticationFailed('token is invalid')
 

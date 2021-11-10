@@ -28,6 +28,9 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             return serializers.PostCreationSerializer
 
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
+
     def destroy(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
