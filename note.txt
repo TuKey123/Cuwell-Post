@@ -10,3 +10,4 @@ djangorestframework-simplejwt
 django-cloudinary-storage
 Pillow
 jwt
+PyJWT==2.3.0
