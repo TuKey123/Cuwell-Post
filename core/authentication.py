@@ -6,9 +6,7 @@ import jwt
 
 def verify_token(token):
     try:
-        payload = jwt.decode(token, key='cHJpdmF0ZUtleS1jdVdlbGw', algorithms=['HS256'],
-                             options={'verify_aud': False, "verify_signature": False},
-                             )
+        payload = jwt.decode(token, key=settings.SECRET_KEY, algorithms=['HS256'], options={'verify_aud': False})
 
         return payload['user']
     except Exception as e:
@@ -18,9 +16,9 @@ def verify_token(token):
 class Authentication(BaseAuthentication):
     def authenticate(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        # token = token.split(' ')[1]
-        user = verify_token(token)
+        token = token.split(' ')[1]
 
+        user = verify_token(token)
         if not user:
             raise exceptions.AuthenticationFailed('token is invalid')
 

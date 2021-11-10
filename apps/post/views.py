@@ -4,7 +4,6 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
 from core.authentication import Authentication
-import jwt
 
 from . import serializers
 from . import models
@@ -28,9 +27,6 @@ class PostViewSet(viewsets.ModelViewSet):
             return serializers.PostImageUpdateSerializer
         else:
             return serializers.PostCreationSerializer
-
-    def list(self, request, *args, **kwargs):
-        return super().list(request, args, kwargs)
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -85,15 +81,7 @@ class ReportTypeViewSet(viewsets.GenericViewSet,
                         mixins.DestroyModelMixin):
     serializer_class = serializers.ReportTypeSerializer
     queryset = models.ReportType.objects.all()
-
-    # authentication_classes = [Authentication]
-
-    def list(self, request, *args, **kwargs):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        payload = jwt.decode(token, key='cHJpdmF0ZUtleS1jdVdlbGw', algorithms=['HS256'],
-                             options={'verify_aud': False, "verify_signature": False},
-                             )
-        return Response(data=payload, status=status.HTTP_200_OK)
+    authentication_classes = [Authentication]
 
 
 class PostReportViewSet(viewsets.GenericViewSet,
