@@ -12,7 +12,7 @@ from . import models
 class PostViewSet(viewsets.ModelViewSet):
     queryset = models.Post.objects.all()
     parser_classes = [MultiPartParser, FormParser]
-    authentication_classes = [Authentication]
+    # authentication_classes = [Authentication]
 
     def get_serializer_class(self):
         if self.action == 'list':
