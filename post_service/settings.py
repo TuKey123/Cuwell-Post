@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'cloudinary_storage',
+    'django_filters',
     'apps.post',
     'apps.order',
 ]
@@ -123,7 +124,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination'
+    # 'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination'
 }
 
 # Internationalization

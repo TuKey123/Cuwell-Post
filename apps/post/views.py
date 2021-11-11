@@ -4,6 +4,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
 from core.authentication import Authentication
+from core.pagination import StandardPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 from . import serializers
 from . import models
@@ -13,6 +16,10 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = models.Post.objects.all()
     parser_classes = [MultiPartParser, FormParser]
     authentication_classes = [Authentication]
+    pagination_class = StandardPagination
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['title', 'description', 'price']
+    filterset_fields = ['category']
 
     def get_serializer_class(self):
         if self.action == 'list':

@@ -23,6 +23,15 @@ class PostImageSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, required=False)
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation['total'] = instance.quantity
+        representation['sell'] = len(instance.carts.all())
+        representation['stock'] = representation['total'] - representation['sell']
+
+        return representation
+
     class Meta:
         model = models.Post
         fields = ['id', 'title', 'description', 'price', 'images']
@@ -30,6 +39,16 @@ class PostSerializer(serializers.ModelSerializer):
 
 class PostDetailSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, required=False)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation['total'] = instance.quantity
+        representation['sell'] = len(instance.carts.all())
+        representation['stock'] = representation['total'] - representation['sell']
+
+        representation.pop('quantity')
+        return representation
 
     class Meta:
         model = models.Post
