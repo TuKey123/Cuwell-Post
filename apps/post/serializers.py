@@ -143,7 +143,7 @@ class PostImageUpdateSerializer(serializers.ModelSerializer):
 
     async def update(self, instance, validated_data):
         asyncio.create_task(self.delete_image_cloud(instance))
-        print(1111)
+
         instance.url = validated_data.get('url', None)
         instance.save()
 
