@@ -4,7 +4,7 @@ from apps.post.models import Post
 
 
 class Cart(models.Model):
-    user = models.IntegerField(validators=[MinValueValidator(1)])
+    user = models.CharField(max_length=200)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='carts')
 
     quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])

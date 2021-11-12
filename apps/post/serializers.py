@@ -1,7 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers, status
 from . import models
-import asyncio
 
 
 # EXTRA FUNC
@@ -87,7 +86,7 @@ class PostCreationSerializer(serializers.ModelSerializer):
         images = self.initial_data.getlist('images', None)
         try:
             with transaction.atomic():
-                user_id = 1
+                user_id = "1"
                 post = models.Post.objects.create(**data, user=user_id)
 
                 post_images = []
@@ -138,11 +137,8 @@ class PostImageUpdateSerializer(serializers.ModelSerializer):
 
         return super().validate(attrs)
 
-    async def delete_image_cloud(self, instance):
+    def update(self, instance, validated_data):
         instance.url.delete()
-
-    async def update(self, instance, validated_data):
-        asyncio.create_task(self.delete_image_cloud(instance))
 
         instance.url = validated_data.get('url', None)
         instance.save()

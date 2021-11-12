@@ -49,7 +49,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     for image in post.images.all():
                         image.url.delete()
 
-                    post.delete()
+                post.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
         except IntegrityError as e:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

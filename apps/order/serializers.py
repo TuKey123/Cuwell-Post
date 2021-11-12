@@ -16,7 +16,7 @@ class CartCreationSerializer(serializers.ModelSerializer):
         return representation
 
     def create(self, validated_data):
-        user = 2
+        user = "2"
         try:
             cart = models.Cart.objects.create(**validated_data, user=user)
             return cart

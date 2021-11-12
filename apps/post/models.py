@@ -15,7 +15,7 @@ class Post(models.Model):
         SELL = 2
         BLOCKED = 3
 
-    user = models.IntegerField(validators=[MinValueValidator(1)])
+    user = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
 
     title = models.CharField(max_length=100)
@@ -50,7 +50,7 @@ class PostReport(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='reports')
     report = models.ForeignKey(ReportType, on_delete=models.CASCADE, related_name='reposts')
 
-    user = models.IntegerField(validators=[MinValueValidator(1)])
+    user = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.CharField(max_length=300)
