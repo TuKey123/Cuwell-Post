@@ -1,4 +1,5 @@
-from rest_framework import viewsets, mixins, views, status
+from django.db.models.functions import Coalesce, Lower
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -20,6 +21,9 @@ class PostViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title', 'description', 'price']
     filterset_fields = ['category']
+
+    def get_queryset(self):
+        return models.Post.objects.order_by('id').reverse()
 
     def get_serializer_class(self):
         if self.action == 'list':
