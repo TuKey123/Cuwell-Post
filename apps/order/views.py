@@ -15,21 +15,19 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = models.Cart.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'detail':
-            return serializers.OrderDetailSerializer
-        elif self.action == 'create':
+        if self.action == 'create':
             return serializers.CartCreationSerializer
         return serializers.CartSerializer
 
-    # @action(detail=True, methods=['get'])
-    # def detail(self, request, pk):
-    #     try:
-    #         print('11111111')
-    #         order_detail = models.OrderDetail.objects.get(=pk)
-    #         return Response(order_detail, status=status.HTTP_200_OK)
-    #
-    #     except ObjectDoesNotExist:
-    #         return Response('order id is invalid', status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['get'], url_path=r'^users/(?P<user_id>\w{0,50})')
+    def get_user_orders(self, request, user_id):
+        try:
+            carts = models.Cart.objects.filter(user=user_id)
+            serializer = self.get_serializer(carts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            return Response('userId is invalid', status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderDetailViewSet(viewsets.ModelViewSet):
