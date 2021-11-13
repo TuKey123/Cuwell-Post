@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 posts = DefaultRouter()
+posts.register('search-autocomplete', views.PostAutoCompleteViewSet)
 posts.register('', views.PostViewSet)
 
 categories = DefaultRouter()
