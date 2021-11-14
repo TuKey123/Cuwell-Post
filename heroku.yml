@@ -1,16 +1,7 @@
-docker:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: 'gunicorn post_service.wsgi:application'
-    ports:
-      - 8000:8000
-    volumes:
-      - .:/app
+build:
+  docker:
+    web: Dockerfile
 
-  queue:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: 'python consumer.py'
+run:
+  command:
+    - python consumer.py
