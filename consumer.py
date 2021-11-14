@@ -23,11 +23,11 @@ def callback(ch, method, properties, body):
     print(body)
 
 
-channel.basic_consume(queue='order', on_message_callback=callback, auto_ack=True
-                      )
+channel.basic_consume(queue='order', on_message_callback=callback, auto_ack=True)
 
 print('start consuming')
+print('start 1')
 
 channel.start_consuming()
 
-channel.close()
+# channel.close()

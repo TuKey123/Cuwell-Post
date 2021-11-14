@@ -4,9 +4,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command: 'gunicorn post_service.wsgi:application'
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
 
   queue:
     build:
       context: .
       dockerfile: Dockerfile
-    command: 'python  ./apps/post/consumer.py'
+    command: 'python consumer.py'

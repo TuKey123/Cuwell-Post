@@ -1,5 +1,4 @@
 import pika
-import json
 
 params = pika.URLParameters('amqps://iifhdhrs:GdvmlF6_j-t_pp1vQa00rxk7NHKEKkdY@mustang.rmq.cloudamqp.com/iifhdhrs')
 
