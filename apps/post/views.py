@@ -14,7 +14,15 @@ from . import serializers
 from . import models
 
 
-# post
+class SearchAutoComplete(filters.SearchFilter):
+    def filter_queryset(self, request, queryset, view):
+        search_fields = self.get_search_fields(view, request)
+        search_terms = self.get_search_terms(request)
+
+        if not search_fields or not search_terms:
+            return queryset
+
+
 class PostViewSet(viewsets.ModelViewSet):
     queryset = models.Post.objects.all()
     parser_classes = [MultiPartParser, FormParser]

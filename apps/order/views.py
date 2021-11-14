@@ -7,6 +7,7 @@ from core.authentication import Authentication
 
 from . import serializers
 from . import models
+from .producer import publish
 
 
 class CartViewSet(viewsets.ModelViewSet):
@@ -18,6 +19,10 @@ class CartViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return serializers.CartCreationSerializer
         return serializers.CartSerializer
+
+    def list(self, request, *args, **kwargs):
+        publish('Phan anh tu')
+        return super().list(request)
 
     @action(detail=False, methods=['get'], url_path=r'^users/(?P<user_id>\w{0,50})')
     def get_user_orders(self, request, user_id):
