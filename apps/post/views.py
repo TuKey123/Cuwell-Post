@@ -14,6 +14,7 @@ from . import serializers
 from . import models
 
 
+# post
 class PostViewSet(viewsets.ModelViewSet):
     queryset = models.Post.objects.all()
     parser_classes = [MultiPartParser, FormParser]
