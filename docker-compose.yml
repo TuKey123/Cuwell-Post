@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'python  ./apps/post/consumer.py'
