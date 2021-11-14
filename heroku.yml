@@ -2,7 +2,7 @@
 #  docker:
 #    web: Dockerfile
 version: '3.8'
-services:
+docker:
   backend:
     build:
       context: .
