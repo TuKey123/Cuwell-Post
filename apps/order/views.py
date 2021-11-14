@@ -21,7 +21,7 @@ class CartViewSet(viewsets.ModelViewSet):
         return serializers.CartSerializer
 
     def list(self, request, *args, **kwargs):
-        publish('order', 'Phan anh tu')
+        publish('order', 'z')
         return super().list(request)
 
     @action(detail=False, methods=['get'], url_path=r'^users/(?P<user_id>\w{0,50})')
