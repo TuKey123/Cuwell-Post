@@ -18,10 +18,16 @@ class CartCreationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user['id']
         try:
-            cart = models.Cart.objects.create(**validated_data, user=user)
-            return cart
+            post = validated_data.get('post', None)
+            quantity = validated_data.get('quantity', None)
+
+            if post.quantity >= quantity:
+                cart = models.Cart.objects.create(**validated_data, user=user)
+                return cart
+
+            raise serializers.ValidationError('quantity must be less than stock')
         except Exception as e:
-            raise serializers.ValidationError('create new card unsuccessful')
+            raise serializers.ValidationError(e)
 
     class Meta:
         model = models.Cart

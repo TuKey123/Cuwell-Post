@@ -33,7 +33,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Post
-        fields = ['id', 'title', 'description', 'price', 'status', 'images']
+        fields = ['id', 'title', 'description', 'price', 'status', 'quantity', 'images']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -86,8 +86,8 @@ class PostCreationSerializer(serializers.ModelSerializer):
         images = self.initial_data.getlist('images', None)
         try:
             with transaction.atomic():
-                user_id = "1"
-                post = models.Post.objects.create(**data, user=user_id)
+                user = self.context['request'].user['id']
+                post = models.Post.objects.create(**data, user=user)
 
                 post_images = []
                 for image in images:
