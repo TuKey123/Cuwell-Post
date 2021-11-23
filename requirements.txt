@@ -11,3 +11,4 @@ Pillow
 PyJWT==2.3.0
 django-filter
 pika
+stripe

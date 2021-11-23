@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import django_heroku
+import stripe
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -173,3 +174,5 @@ CLOUDINARY_STORAGE = {
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+stripe.api_key = "sk_test_51JyJRaIeiMCbzacC5PDVszgBpAB3PRYghpRNF1sDttu7aLAzVBONhcwHAUl9Ww3hBGTMVjElWb77iSc3w6V9fSyr00ctpoNb5u"
