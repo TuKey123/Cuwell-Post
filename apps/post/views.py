@@ -12,7 +12,6 @@ from rest_framework import filters
 
 from . import serializers
 from . import models
-import stripe
 
 
 class SearchAutoComplete(filters.SearchFilter):
@@ -37,17 +36,6 @@ class PostViewSet(viewsets.ModelViewSet):
         return models.Post.objects.order_by('id').reverse()
 
     def get_serializer_class(self):
-        customer = stripe.Customer.create(
-            name="tu",
-            email="pt27122000@gmail.com",
-            source=""
-        )
-        stripe.Charge.create(
-            amount=500,
-            customer=customer,
-            currency="usd",
-            description="Donate"
-        )
         if self.action == 'list':
             return serializers.PostSerializer
         elif self.action == 'retrieve':
