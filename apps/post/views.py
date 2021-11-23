@@ -1,11 +1,9 @@
 from django.db.models import Q
-from numpy import source
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
-from scripts.regsetup import description
 
 from core.authentication import Authentication
 from core.pagination import StandardPagination
