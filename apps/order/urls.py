@@ -7,7 +7,3 @@ carts.register('', views.CartViewSet)
 
 order_details = DefaultRouter()
 order_details.register('', views.CartViewSet)
-
-urlpatterns = [
-    path('', include(carts.urls)),
-]
