@@ -34,7 +34,7 @@ class CartCreationSerializer(serializers.ModelSerializer):
         fields = ['id', 'post', 'quantity']
 
 
-class OrderDetailSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderDetail
         fields = '__all__'

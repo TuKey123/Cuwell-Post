@@ -5,5 +5,5 @@ from . import views
 carts = DefaultRouter()
 carts.register('', views.CartViewSet)
 
-order_details = DefaultRouter()
-order_details.register('', views.CartViewSet)
+orders = DefaultRouter()
+orders.register('', views.OrderViewSet)
