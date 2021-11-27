@@ -92,13 +92,13 @@ class PostAutoCompleteViewSet(viewsets.GenericViewSet,
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         search_param = request.query_params.get('search', None)
-
         if not search_param:
             return Response([], status=status.HTTP_200_OK)
 
         try:
-            queryset = queryset.filter(Q(title__istartswith=search_param[0]) |
-                                       Q(description__istartswith=search_param[0]))
+            search_param = search_param.lower()
+            queryset = queryset.filter(Q(title__istartswith=search_param) |
+                                       Q(description__istartswith=search_param))
 
             auto_complete = []
             for record in queryset:
