@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
@@ -52,8 +53,9 @@ class PostViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
+                user_id = request.user['id']
                 post_id = kwargs['pk']
-                post = models.Post.objects.get(id=post_id)
+                post = models.Post.objects.get(id=post_id, user=user_id)
 
                 if post.images.all():
                     for image in post.images.all():
@@ -61,6 +63,9 @@ class PostViewSet(viewsets.ModelViewSet):
 
                 post.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except ObjectDoesNotExist as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         except IntegrityError as e:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Error as e:
