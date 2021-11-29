@@ -106,13 +106,14 @@ class PostAutoCompleteViewSet(viewsets.GenericViewSet,
                                        Q(description__istartswith=search_param))
 
             auto_complete = []
+
             for record in queryset:
                 if search_param[0] in record.title:
-                    auto_complete.append(record.title)
+                    result = ' '.join(record.title.split(' ')[0:7])
+                    auto_complete.append(result)
                 elif search_param[0] in record.description:
-                    auto_complete.append(record.description)
-                else:
-                    auto_complete.append(record.price)
+                    result = ' '.join(record.description.split(' ')[0:7])
+                    auto_complete.append(result)
 
             return Response(list(set(auto_complete)), status=status.HTTP_200_OK)
 
