@@ -108,10 +108,10 @@ class PostAutoCompleteViewSet(viewsets.GenericViewSet,
             auto_complete = []
 
             for record in queryset:
-                if search_param[0] in record.title:
+                if search_param in record.title.lower():
                     result = ' '.join(record.title.split(' ')[0:7])
                     auto_complete.append(result)
-                elif search_param[0] in record.description:
+                elif search_param in record.description.lower():
                     result = ' '.join(record.description.split(' ')[0:7])
                     auto_complete.append(result)
 
