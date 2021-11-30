@@ -1,8 +1,25 @@
 from rest_framework import serializers
 from . import models
+from apps.post import models as post_models
+
+
+class PostImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = post_models.PostImage
+        fields = ['id', 'url']
+
+
+class PostSerializer(serializers.ModelSerializer):
+    images = PostImageSerializer(many=True)
+
+    class Meta:
+        model = post_models.Post
+        fields = ['title', 'price', 'description', 'images']
 
 
 class CartSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+
     class Meta:
         model = models.Cart
         fields = '__all__'
