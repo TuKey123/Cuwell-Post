@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.db import transaction
-from rest_framework import serializers, status
+from rest_framework import serializers
 from . import models
+import requests
 
 
 # EXTRA FUNC
@@ -39,12 +41,33 @@ class PostSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, required=False)
 
+    def user_detail(self):
+        user_id = self.instance.user
+        token = self.context['request'].META.get('HTTP_AUTHORIZATION').split(' ')[1]
+        url = settings.AUTH_SERVICE_URL + user_id
+
+        headers = {
+            'Authorization': 'Bearer {}'.format(token)
+        }
+        response = requests.get(url, headers=headers)
+        data = response.json()['payload']
+
+        return {
+            "id": user_id,
+            "email": data['email'],
+            "name": data['name'],
+            "phone": data['phone'],
+            "rating": data['ratingAverage'],
+            "address": data['address']
+        }
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
         representation['total'] = instance.quantity
         representation['sell'] = len(instance.carts.all())
         representation['stock'] = representation['total'] - representation['sell']
+        representation['user'] = self.user_detail()
 
         representation.pop('quantity')
         return representation

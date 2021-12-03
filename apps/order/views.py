@@ -19,43 +19,6 @@ class CartViewSet(viewsets.ModelViewSet):
         query = super().get_queryset()
         return query.filter(user=user_id)
 
-    def list(self, request, *args, **kwargs):
-        # stripe.Account.create(
-        #     type="custom",
-        #     country="US",
-        #     email="pt27122000@gmail.com",
-        #     capabilities={
-        #         "card_payments": {"requested": True},
-        #         "transfers": {"requested": True},
-        #     },
-        # )
-        # account = stripe.Account.retrieve('acct_1K1DQHRMg8VIAv31')
-
-        # customer = stripe.Customer.create(
-        #     email="a@gmail.com",
-        #     name="Tu",
-        #     description="asd",
-        #     source="tok_visa_debit",
-        # )
-        # intent = stripe.PaymentIntent.create(
-        #     amount=2000,
-        #     currency="usd",
-        #     on_behalf_of="acct_1JyJRaIeiMCbzacC"
-        # )
-        # charge = stripe.Charge.create(
-        #     source="tok_visa_debit",
-        #     amount=2000,
-        #     currency="usd",
-        # )
-        # transfer = stripe.Transfer.create(
-        #     amount=1000,
-        #     currency="usd",
-        #     source_transaction="ch_3K0si9EU1wq10qYa151M3EeA",
-        #     destination="acct_1K1DQHRMg8VIAv31",
-        # )
-
-        return super(CartViewSet, self).list(request)
-
     def get_serializer_class(self):
         if self.action == 'create':
             return serializers.CartCreationSerializer
