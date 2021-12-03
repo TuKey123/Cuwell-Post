@@ -37,7 +37,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return models.Post.objects.order_by('id').reverse()
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action == 'list' or self.action == 'get_posts_by_user_id':
             return serializers.PostSerializer
         elif self.action == 'retrieve':
             return serializers.PostDetailSerializer
@@ -81,6 +81,14 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path=r'^users/(?P<user_id>[\w\-]+)')
+    def get_posts_by_user_id(self, request, user_id=None):
+        queryset = self.get_queryset().filter(user=user_id)
+        page = self.paginate_queryset(queryset)
+
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class PostAutoCompleteViewSet(viewsets.GenericViewSet,

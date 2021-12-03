@@ -40,7 +40,13 @@ class CartCreationSerializer(serializers.ModelSerializer):
             post = validated_data.get('post', None)
             quantity = validated_data.get('quantity', None)
 
-            if post.quantity >= quantity:
+            existed_cart = models.Cart.objects.filter(post=post.id).first()
+            if existed_cart:
+                existed_cart.quantity += quantity
+                existed_cart.save()
+                return existed_cart
+
+            elif post.quantity >= quantity:
                 cart = models.Cart.objects.create(**validated_data, user=user)
                 return cart
 
