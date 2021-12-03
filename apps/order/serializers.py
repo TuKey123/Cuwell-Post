@@ -43,6 +43,10 @@ class CartCreationSerializer(serializers.ModelSerializer):
             existed_cart = models.Cart.objects.filter(post=post.id).first()
             if existed_cart:
                 existed_cart.quantity += quantity
+
+                if existed_cart.quantity > post.quantity:
+                    raise serializers.ValidationError('quantity must be less than stock')
+
                 existed_cart.save()
                 return existed_cart
 
