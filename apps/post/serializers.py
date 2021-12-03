@@ -1,6 +1,8 @@
+from urllib import response
+
 from django.conf import settings
 from django.db import transaction
-from rest_framework import serializers
+from rest_framework import serializers, status
 from . import models
 import requests
 
@@ -50,6 +52,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'Authorization': 'Bearer {}'.format(token)
         }
         response = requests.get(url, headers=headers)
+
+        if response.json()['statusCode'] != 200:
+            raise serializers.ValidationError('can not fetch user information')
+
         data = response.json()['payload']
 
         return {
