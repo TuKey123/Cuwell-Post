@@ -80,7 +80,7 @@ class CartViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['get'], url_path=r'posts/(?P<post_id>\d+)')
+    @action(detail=False, methods=['delete'], url_path=r'posts/(?P<post_id>\d+)')
     def delete_by_post(self, request, post_id=None):
         cart = self.get_queryset().filter(post_id=post_id)
 
