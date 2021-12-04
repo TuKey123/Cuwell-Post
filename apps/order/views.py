@@ -45,7 +45,8 @@ class CartViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete'], url_path=r'posts/(?P<post_id>\d+)')
     def delete_by_post(self, request, post_id=None):
-        cart = self.get_queryset().filter(post_id=post_id)
+        user_id = request.user['id']
+        cart = self.get_queryset().filter(post_id=post_id, user=user_id)
 
         if cart:
             cart.delete()
