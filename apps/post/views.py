@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
 
-from core.authentication import Authentication, AdminPermission
+from core.authentication import Authentication
 from core.pagination import StandardPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -171,7 +171,7 @@ class StatisticViewSet(viewsets.GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
     authentication_classes = [Authentication]
-    permission_classes = [AdminPermission]
+    # permission_classes = [AdminPermission]
 
     def get_queryset(self):
         queryset = super().get_queryset()

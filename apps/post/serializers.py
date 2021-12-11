@@ -199,6 +199,15 @@ class ReportTypeSerializer(serializers.ModelSerializer):
 
 
 class PostReportSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        user = self.context['request'].user['id']
+        validated_data['user'] = user
+
+        return super().create(validated_data)
+
     class Meta:
         model = models.PostReport
         fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only': True}
+        }
