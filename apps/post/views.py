@@ -170,6 +170,7 @@ class PostReportViewSet(viewsets.GenericViewSet,
 class StatisticViewSet(viewsets.GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
+    authentication_classes = [Authentication]
 
     def get_queryset(self):
         queryset = super().get_queryset()
