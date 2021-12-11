@@ -129,7 +129,7 @@ class PostCreationSerializer(serializers.ModelSerializer):
 
                 return validated_data
         except Exception as e:
-            raise serializers.ValidationError('can not create post')
+            raise serializers.ValidationError(e)
 
     class Meta:
         model = models.Post
