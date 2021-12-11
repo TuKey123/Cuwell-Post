@@ -16,9 +16,13 @@ report_types.register('', views.ReportTypeViewSet)
 post_reports = DefaultRouter()
 post_reports.register('', views.PostReportViewSet)
 
+statistics = DefaultRouter()
+statistics.register('', views.StatisticViewSet)
+
 urlpatterns = [
     path('posts/', include(posts.urls)),
     path('categories/', include(categories.urls)),
     path('report-types/', include(report_types.urls)),
     path('post-reposts/', include(post_reports.urls)),
+    path('statistics/', include(statistics.urls)),
 ]

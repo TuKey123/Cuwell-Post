@@ -40,7 +40,7 @@ class CartCreationSerializer(serializers.ModelSerializer):
             post = validated_data.get('post', None)
             quantity = validated_data.get('quantity', None)
 
-            existed_cart = models.Cart.objects.filter(post=post.id).first()
+            existed_cart = models.Cart.objects.filter(post=post.id, user=user).first()
             if existed_cart:
                 existed_cart.quantity += quantity
 

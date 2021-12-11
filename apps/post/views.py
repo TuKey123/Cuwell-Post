@@ -1,5 +1,6 @@
+import json
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -164,3 +165,21 @@ class PostReportViewSet(viewsets.GenericViewSet,
     serializer_class = serializers.PostReportSerializer
     queryset = models.PostReport.objects.all()
     authentication_classes = [Authentication]
+
+
+class StatisticViewSet(viewsets.GenericViewSet):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.PostSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.values('user').annotate(number_of_posts=Count('user')).order_by('-number_of_posts')
+
+        return queryset
+
+    @action(detail=False, methods=['get'], url_path=r'^users/number-of-posts')
+    def get_number_of_posts(self, request):
+        queryset = self.get_queryset()
+        data = list(queryset)
+
+        return Response(data=data, status=status.HTTP_200_OK)
