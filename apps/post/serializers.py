@@ -1,8 +1,6 @@
-from urllib import response
-
 from django.conf import settings
 from django.db import transaction
-from rest_framework import serializers, status
+from rest_framework import serializers
 from . import models
 import requests
 
@@ -93,7 +91,10 @@ class PostCreationSerializer(serializers.ModelSerializer):
             return False
 
         for image in images:
-            if not less_than_2mb(image):
+            if not image:
+                raise serializers.ValidationError('image can not be null')
+
+            elif not less_than_2mb(image):
                 return False
 
         return True
