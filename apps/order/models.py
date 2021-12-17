@@ -19,6 +19,9 @@ class Payment(models.Model):
     payer_id = models.CharField(max_length=100, blank=True)
     authentication = models.IntegerField(choices=Status.choices, default=Status.INACTIVE)
     checkout = models.BooleanField(default=False)
+    street = models.CharField(max_length=100)
+    district = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
 
 
 class Order(models.Model):
@@ -31,11 +34,7 @@ class Order(models.Model):
     buyer = models.CharField(max_length=200)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='orders')
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True)
-
     payee_email = models.EmailField(null=True)
-    street = models.CharField(max_length=100)
-    district = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
     description = models.CharField(max_length=200, null=True)
     price = models.FloatField(validators=[MinValueValidator(0)], null=True)
     quantity = models.IntegerField(validators=[MinValueValidator(1)])

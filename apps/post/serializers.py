@@ -62,7 +62,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "name": data['name'],
             "phone": data['phone'],
             "rating": data['ratingAverage'],
-            "address": data['address']
+            "address": data['address'],
+            'paypalEmail': data['paypalEmail']
         }
 
     def to_representation(self, instance):

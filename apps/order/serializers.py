@@ -1,7 +1,10 @@
-import paypalrestsdk
+import datetime
+
+from django.db import transaction
 from apps.post import models as post_models
 from rest_framework import serializers
 from . import models
+import paypalrestsdk
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -61,7 +64,7 @@ class CartCreationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Cart
-        fields = ['id', 'post', 'quantity']
+        fields = ['id', 'post', 'quantity', 'payee_email']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -105,36 +108,69 @@ class SellerOrderSerializer(serializers.ModelSerializer):
 
 
 class PaymentExecutionSerializer(serializers.ModelSerializer):
-    # def create_orders(self):
-    #     orders = []
-    #     carts = models.Cart.objects.filter()
-    #     for cart in carts:
-    #         order = models.Order(**validated_data,
-    #                              price=cart.post.price,
-    #                              quantity=cart.quantity,
-    #                              post=cart.post,
-    #                              buyer=buyer,
-    #                              payee_email=cart.payee_email,
-    #                              payment=payment)
-    #         orders.append(order)
-    #     models.Order.objects.bulk_create(orders)
-    #     carts.delete()
-    #     return orders
+    def create_orders(self, payment):
+        orders = []
+        buyer = self.context['request'].user['id']
+        carts = models.Cart.objects.filter(user=buyer)
+        for cart in carts:
+            order = models.Order(price=cart.post.price,
+                                 quantity=cart.quantity,
+                                 post=cart.post,
+                                 buyer=buyer,
+                                 payee_email=cart.payee_email,
+                                 payment=payment)
+            orders.append(order)
+
+        models.Order.objects.bulk_create(orders)
+        carts.delete()
+
+        return orders
+
+    def payin(self, paypal_payment, payer_id):
+        if not paypal_payment.execute({"payer_id": payer_id}):
+            raise serializers.ValidationError('can not execute payment')
+
+    def payout(self, paypal_payment, orders):
+        paypal_payout = paypalrestsdk.Payout({
+            "sender_batch_header": {
+                "sender_batch_id": paypal_payment.id + str(datetime.datetime.now()),
+                "email_subject": "You have a payment"
+            },
+            "items": list(map(lambda order:
+                              {
+                                  "recipient_type": "EMAIL",
+                                  "amount": {
+                                      "value": order.price * order.quantity,
+                                      "currency": "USD"
+                                  },
+                                  "receiver": "sb-cynbp9035412@personal.example.com",
+                                  "note": "You have a payment"
+                              }
+                              , orders))
+        })
+        paypal_payout.create()
 
     def update(self, instance, validated_data):
         payer_id = validated_data.get('payer_id', None)
 
-        payment = paypalrestsdk.Payment.find(instance.payment_id)
+        paypal_payment = paypalrestsdk.Payment.find(instance.payment_id)
 
-        if not payment.execute({"payer_id": payer_id}):
-            raise serializers.ValidationError('can not execute payment')
+        try:
+            with transaction.atomic():
+                self.payin(paypal_payment, payer_id)
 
-        instance.payer_id = payer_id
-        instance.authentication = models.Payment.Status.ACTIVE
+                orders = self.create_orders(instance)
 
-        instance.save()
+                instance.payer_id = payer_id
+                instance.authentication = models.Payment.Status.ACTIVE
+                instance.checkout = True
+                instance.save()
 
-        return instance
+                self.payout(paypal_payment, orders)
+
+                return instance
+        except Exception as e:
+            raise serializers.ValidationError(e)
 
     class Meta:
         model = models.Payment
@@ -145,6 +181,12 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
 
 
 class CheckOutSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['auth_url'] = self.validated_data['auth_url']
+
+        return representation
+
     def transactions(self, carts):
         total = 0
         for cart in carts:
@@ -156,11 +198,6 @@ class CheckOutSerializer(serializers.ModelSerializer):
                 "currency": "USD"
             }, }]
         return transactions
-
-    def create_payment(self, payment_id):
-        payment = models.Payment(payment_id=payment_id)
-        payment.save()
-        return payment
 
     def create_paypal_payment(self, carts):
         paypal_payment = paypalrestsdk.Payment({
@@ -180,24 +217,18 @@ class CheckOutSerializer(serializers.ModelSerializer):
 
         return paypal_payment
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['auth_url'] = self.validated_data['auth_url']
-
-        return representation
-
     def create(self, validated_data):
         buyer = self.context['request'].user['id']
         carts = models.Cart.objects.filter(user=buyer)
 
         paypal_payment = self.create_paypal_payment(carts)
-        payment = self.create_payment(payment_id=paypal_payment.id)
 
-        # get authentication url
         self.validated_data['auth_url'] = paypal_payment.links[1]['href']
 
-        return validated_data
+        payment = models.Payment.objects.create(**validated_data, payment_id=paypal_payment.id)
+
+        return payment
 
     class Meta:
-        model = models.Order
-        fields = ['street', 'district', 'city']
+        model = models.Payment
+        fields = ['id', 'street', 'district', 'city']
