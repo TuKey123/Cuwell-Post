@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import django_heroku
 import stripe
+import paypalrestsdk
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -178,3 +179,9 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 stripe.api_key = "sk_test_51JyJRaIeiMCbzacC5PDVszgBpAB3PRYghpRNF1sDttu7aLAzVBONhcwHAUl9Ww3hBGTMVjElWb77iSc3w6V9fSyr00ctpoNb5u"
 
 AUTH_SERVICE_URL = 'https://cuwell-authentication.herokuapp.com/api/users/'
+
+paypalrestsdk.configure({
+    "mode": "sandbox",
+    "client_id": "Aelfsy72CBgMoy_IHUTZfnoSw7Qcc-Whq1ZW1spEAP_hkZWJF_1hbAF4PXecUIDEZsG9C2JCxgnppLV6",
+    "client_secret": "EC_TcAQVXXwZDshgWV1I2JOQSA_yPQE5iBoDmPr6r5_pABa4EHgRnrw5y85mQ0AAAjzSBj3Ce1ZswRLK"
+})

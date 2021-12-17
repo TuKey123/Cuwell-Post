@@ -1,10 +1,12 @@
 from django.urls import path
 from django.urls.conf import include
 from apps.post import urls as post_urls
-from apps.order.urls import carts, orders
+from apps.order.urls import carts, seller, buyer, payment
 
 urlpatterns = [
     path('', include(post_urls)),
-    path('orders/', include(orders.urls)),
-    path('carts/', include(carts.urls))
+    path('carts/', include(carts.urls)),
+    path('seller/', include(seller.urls)),
+    path('buyer/', include(buyer.urls)),
+    path('payments/', include(payment.urls)),
 ]

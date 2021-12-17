@@ -1,4 +1,3 @@
-import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Count
 from rest_framework import viewsets, mixins, status
@@ -7,7 +6,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
 
-from core.authentication import Authentication
+from core.authentication import Authentication, AdminPermission
 from core.pagination import StandardPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -171,17 +170,20 @@ class StatisticViewSet(viewsets.GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
     authentication_classes = [Authentication]
-    # permission_classes = [AdminPermission]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.values('user').annotate(number_of_posts=Count('user')).order_by('-number_of_posts')
-
-        return queryset
+    permission_classes = [AdminPermission]
 
     @action(detail=False, methods=['get'], url_path=r'^users/number-of-posts')
-    def get_number_of_posts(self, request):
+    def get_posts_by_user(self, request):
         queryset = self.get_queryset()
+        queryset = queryset.values('user').annotate(number_of_posts=Count('user')).order_by('-number_of_posts')
+        data = list(queryset)
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'^categories/number-of-posts')
+    def get_posts_by_category(self, request):
+        queryset = self.get_queryset()
+        queryset = queryset.values('category', 'category__name').annotate(number_of_posts=Count('category'), ).order_by('-number_of_posts')
         data = list(queryset)
 
         return Response(data=data, status=status.HTTP_200_OK)
