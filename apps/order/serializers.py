@@ -147,7 +147,7 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
     def update_post_quantity(self, orders):
         try:
             with transaction.atomic():
-                post_ids = list(map(lambda order: order.post, orders))
+                post_ids = list(map(lambda order: order.post.id, orders))
                 models.Post.objects.filter(pk__in=post_ids).update(quantity=F('quantity') - 1)
         except Exception as e:
             serializers.ValidationError(e)
