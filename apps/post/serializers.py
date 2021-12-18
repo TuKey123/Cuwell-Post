@@ -100,6 +100,11 @@ class PostCreationSerializer(serializers.ModelSerializer):
 
         return True
 
+    def validate_quantity(self, value):
+        if value > 0:
+            return value
+        raise serializers.ValidationError('quantity can not be less than 1')
+
     def validate(self, attrs):
         if not self.validate_images():
             raise serializers.ValidationError('image must be less than 2mb')

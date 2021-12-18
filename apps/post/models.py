@@ -24,7 +24,7 @@ class Post(models.Model):
     status = models.IntegerField(choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
-    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    quantity = models.IntegerField(default=1, validators=[MinValueValidator(0)])
 
 
 class PostImage(models.Model):
