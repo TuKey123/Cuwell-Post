@@ -1,11 +1,13 @@
-import datetime
-
 from django.db import transaction
 from apps.post import models as post_models
 from rest_framework import serializers
+from django.db.models import F
 from . import models
 import paypalrestsdk
+import datetime
 
+
+# region CART
 
 class PostImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,6 +69,20 @@ class CartCreationSerializer(serializers.ModelSerializer):
         fields = ['id', 'post', 'quantity', 'payee_email']
 
 
+# endregion
+
+# region ORDER
+
+def validate_carts_before_order(buyer):
+    carts = models.Cart.objects.filter(user=buyer)
+
+    for cart in carts:
+        if cart.quantity > cart.post.quantity:
+            return False
+
+    return True
+
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
@@ -74,31 +90,51 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class BuyerOrderSerializer(serializers.ModelSerializer):
-    def validate_quantity(self, quantity):
-        post_id = self.initial_data.get('post', None)
-        post = post_models.Post.objects.get(pk=post_id)
+    def validate(self, attrs):
+        buyer = self.context['request'].user['id']
 
-        if post.quantity < quantity:
-            raise serializers.ValidationError('quantity must be less than stock')
+        if not validate_carts_before_order(buyer):
+            serializers.ValidationError('quantity must be less than stock')
 
-        return True
+        return super().validate(attrs)
+
+    def create_payment(self):
+        payment = models.Payment(**self.validated_data)
+        payment.save()
+        return payment
+
+    def create_orders(self, payment):
+        buyer = self.context['request'].user['id']
+        carts = models.Cart.objects.filter(user=buyer)
+        orders = []
+
+        for cart in carts:
+            order = models.Order(price=cart.post.price,
+                                 quantity=cart.quantity,
+                                 post=cart.post,
+                                 buyer=buyer,
+                                 payee_email=cart.payee_email,
+                                 payment=payment)
+            orders.append(order)
+
+        models.Order.objects.bulk_create(orders)
+        carts.delete()
+
+        return orders
 
     def create(self, validated_data):
         try:
-            buyer = self.context['request'].user['id']
-            order = models.Order.objects.create(**validated_data, buyer=buyer)
-            return validated_data
+            with transaction.atomic():
+                payment = self.create_payment()
+                orders = self.create_orders(payment)
+
+                return payment
         except Exception as e:
-            raise serializers.ValidationError('can not order')
+            raise serializers.ValidationError(e)
 
     class Meta:
-        model = models.Order
-        fields = '__all__'
-        extra_kwargs = {
-            'buyer': {'read_only': True},
-            'delivery_day': {'read_only': True},
-            'status': {'read_only': True},
-        }
+        model = models.Payment
+        fields = ['id', 'street', 'district', 'city']
 
 
 class SellerOrderSerializer(serializers.ModelSerializer):
@@ -108,6 +144,17 @@ class SellerOrderSerializer(serializers.ModelSerializer):
 
 
 class PaymentExecutionSerializer(serializers.ModelSerializer):
+    def update_post_quantity(self, orders):
+        try:
+            with transaction.atomic():
+                post_ids = list(map(lambda order: order.post, orders))
+                models.Post.objects.filter(pk__in=post_ids).update(quantity=F('quantity') - 1)
+        except Exception as e:
+            serializers.ValidationError(e)
+
+    def detele_carts(self, carts):
+        carts.delete()
+
     def create_orders(self, payment):
         orders = []
         buyer = self.context['request'].user['id']
@@ -122,7 +169,9 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
             orders.append(order)
 
         models.Order.objects.bulk_create(orders)
-        carts.delete()
+
+        self.update_post_quantity(orders)
+        self.detele_carts(carts)
 
         return orders
 
@@ -143,7 +192,7 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
                                       "value": order.price * order.quantity,
                                       "currency": "USD"
                                   },
-                                  "receiver": "sb-cynbp9035412@personal.example.com",
+                                  "receiver": order.payee_email,
                                   "note": "You have a payment"
                               }
                               , orders))
@@ -157,16 +206,16 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
 
         try:
             with transaction.atomic():
-                self.payin(paypal_payment, payer_id)
-
                 orders = self.create_orders(instance)
 
+                self.payin(paypal_payment, payer_id)
+                self.payout(paypal_payment, orders)
+
+                # update payment
                 instance.payer_id = payer_id
                 instance.authentication = models.Payment.Status.ACTIVE
                 instance.checkout = True
                 instance.save()
-
-                self.payout(paypal_payment, orders)
 
                 return instance
         except Exception as e:
@@ -181,6 +230,14 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
 
 
 class CheckOutSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        buyer = self.context['request'].user['id']
+
+        if not validate_carts_before_order(buyer):
+            serializers.ValidationError('quantity must be less than stock')
+
+        return super().validate(attrs)
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['auth_url'] = self.validated_data['auth_url']
@@ -232,3 +289,5 @@ class CheckOutSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Payment
         fields = ['id', 'street', 'district', 'city']
+
+# endregion
