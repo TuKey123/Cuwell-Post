@@ -15,6 +15,7 @@ class Payment(models.Model):
         ACTIVE = 1
         INACTIVE = 2
 
+    buyer = models.CharField(max_length=200)
     payment_id = models.CharField(max_length=100, blank=True)
     payer_id = models.CharField(max_length=100, blank=True)
     authentication = models.IntegerField(choices=Status.choices, default=Status.INACTIVE)
@@ -31,9 +32,9 @@ class Order(models.Model):
         ACCEPTED = 3
         CANCEL = 4
 
-    buyer = models.CharField(max_length=200)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='orders')
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True)
+
     payee_email = models.EmailField(null=True)
     description = models.CharField(max_length=200, null=True)
     price = models.FloatField(validators=[MinValueValidator(0)], null=True)

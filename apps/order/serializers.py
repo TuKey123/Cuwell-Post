@@ -145,33 +145,23 @@ class SellerOrderSerializer(serializers.ModelSerializer):
 
 class PaymentExecutionSerializer(serializers.ModelSerializer):
     def update_post_quantity(self, orders):
-        try:
-            with transaction.atomic():
-                post_ids = list(map(lambda order: order.post.id, orders))
-                models.Post.objects.filter(pk__in=post_ids).update(quantity=F('quantity') - 1)
-        except Exception as e:
-            serializers.ValidationError(e)
+        post_ids = list(map(lambda order: order.post.id, orders))
+        models.Post.objects.filter(pk__in=post_ids).update(quantity=F('quantity') - 1)
 
     def detele_carts(self, carts):
         carts.delete()
 
-    def create_orders(self, payment):
+    def create_orders(self, payment, carts):
         orders = []
-        buyer = self.context['request'].user['id']
-        carts = models.Cart.objects.filter(user=buyer)
         for cart in carts:
             order = models.Order(price=cart.post.price,
                                  quantity=cart.quantity,
                                  post=cart.post,
-                                 buyer=buyer,
                                  payee_email=cart.payee_email,
                                  payment=payment)
             orders.append(order)
 
         models.Order.objects.bulk_create(orders)
-
-        self.update_post_quantity(orders)
-        self.detele_carts(carts)
 
         return orders
 
@@ -201,12 +191,15 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         payer_id = validated_data.get('payer_id', None)
-
         paypal_payment = paypalrestsdk.Payment.find(instance.payment_id)
+        carts = models.Cart.objects.filter(user=instance.buyer)
 
         try:
             with transaction.atomic():
-                orders = self.create_orders(instance)
+                orders = self.create_orders(instance, carts)
+
+                self.update_post_quantity(orders)
+                self.detele_carts(carts)
 
                 self.payin(paypal_payment, payer_id)
                 self.payout(paypal_payment, orders)
@@ -230,6 +223,12 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
 
 
 class CheckOutSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['auth_url'] = self.validated_data['auth_url']
+
+        return representation
+
     def validate(self, attrs):
         buyer = self.context['request'].user['id']
 
@@ -237,12 +236,6 @@ class CheckOutSerializer(serializers.ModelSerializer):
             serializers.ValidationError('quantity must be less than stock')
 
         return super().validate(attrs)
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['auth_url'] = self.validated_data['auth_url']
-
-        return representation
 
     def transactions(self, carts):
         total = 0
@@ -263,8 +256,8 @@ class CheckOutSerializer(serializers.ModelSerializer):
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": "http://localhost:3000/payment/execute",
-                "cancel_url": "http://localhost:3000/"
+                "return_url": "https://cuwell-post-service.herokuapp.com/api/v1/payment/execute",
+                "cancel_url": "https://cuwell-post-service.herokuapp.com/api/v1/"
             },
             "transactions": self.transactions(carts)
         })
@@ -282,7 +275,9 @@ class CheckOutSerializer(serializers.ModelSerializer):
 
         self.validated_data['auth_url'] = paypal_payment.links[1]['href']
 
-        payment = models.Payment.objects.create(**validated_data, payment_id=paypal_payment.id)
+        payment = models.Payment.objects.create(**validated_data,
+                                                payment_id=paypal_payment.id,
+                                                buyer=buyer)
 
         return payment
 

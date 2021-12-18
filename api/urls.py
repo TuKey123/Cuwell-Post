@@ -8,5 +8,5 @@ urlpatterns = [
     path('carts/', include(carts.urls)),
     path('seller/', include(seller.urls)),
     path('buyer/', include(buyer.urls)),
-    path('payments/', include(payment.urls)),
+    path('payment/', include(payment.urls)),
 ]

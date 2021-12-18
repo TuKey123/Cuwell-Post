@@ -61,7 +61,7 @@ class BuyerOrderViewSet(viewsets.GenericViewSet,
 
     def get_queryset(self):
         user = self.request.user['id']
-        return models.Order.objects.filter(buyer=user)
+        return models.Order.objects.filter(payment__buyer=user)
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -88,13 +88,18 @@ class SellerOrderViewSet(viewsets.GenericViewSet,
 
 class PaymentViewSet(viewsets.GenericViewSet):
     queryset = models.Payment.objects.all()
-    authentication_classes = [Authentication]
     serializer_class = serializers.PaymentExecutionSerializer
 
-    @action(detail=True, methods=['put'], url_path='validate')
-    def payment_validate(self, request, pk=None):
-        instance = models.Payment.objects.filter(pk=pk).first()
-        serializer = self.get_serializer(instance=instance, data=request.data)
+    @action(detail=False, methods=['get'], url_path='execute')
+    def payment_validate(self, request):
+        payment_id = request.query_params.get('paymentId', None)
+        payer_id = request.query_params.get('PayerID', None)
+
+        if not payment_id or not payer_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        instance = models.Payment.objects.filter(payment_id=payment_id, checkout=False).first()
+        serializer = self.get_serializer(instance=instance, data={'payer_id': payer_id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
