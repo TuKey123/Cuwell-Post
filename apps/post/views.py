@@ -34,7 +34,7 @@ class PostViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category']
 
     def get_queryset(self):
-        return models.Post.objects.order_by('id').reverse()
+        return models.Post.objects.filter(quantity__gt=0).order_by('id').reverse()
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'get_posts_by_user_id':
@@ -100,7 +100,7 @@ class PostAutoCompleteViewSet(viewsets.GenericViewSet,
     queryset = models.Post.objects.all()
 
     def get_queryset(self):
-        return models.Post.objects.order_by('id').reverse().only('title', 'description', 'price')
+        return models.Post.objects.filter(quantity__gt=0).order_by('id').reverse().only('title', 'description', 'price')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -183,7 +183,8 @@ class StatisticViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['get'], url_path=r'^categories/number-of-posts')
     def get_posts_by_category(self, request):
         queryset = self.get_queryset()
-        queryset = queryset.values('category', 'category__name').annotate(number_of_posts=Count('category'), ).order_by('-number_of_posts')
+        queryset = queryset.values('category', 'category__name').annotate(number_of_posts=Count('category'), ).order_by(
+            '-number_of_posts')
         data = list(queryset)
 
         return Response(data=data, status=status.HTTP_200_OK)
