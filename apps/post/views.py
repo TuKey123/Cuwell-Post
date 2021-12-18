@@ -5,7 +5,6 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
-
 from core.authentication import Authentication, AdminPermission
 from core.pagination import StandardPagination
 from django_filters.rest_framework import DjangoFilterBackend

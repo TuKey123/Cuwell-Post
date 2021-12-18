@@ -102,7 +102,7 @@ class PaymentViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(instance=instance, data={'payer_id': payer_id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response('payment successfully', status=status.HTTP_200_OK)
 
 
 class BuyerCheckOutViewSet(viewsets.GenericViewSet,
