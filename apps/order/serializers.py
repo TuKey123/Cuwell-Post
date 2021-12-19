@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.db.models import F
 from . import models
 import paypalrestsdk
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 
 
 # region CART
@@ -173,7 +173,7 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
     def payout(self, paypal_payment, orders):
         paypal_payout = paypalrestsdk.Payout({
             "sender_batch_header": {
-                "sender_batch_id": paypal_payment.id + str(datetime.datetime.now()),
+                "sender_batch_id": paypal_payment.id + str(datetime.now()),
                 "email_subject": "You have a payment"
             },
             "items": list(map(lambda order:
