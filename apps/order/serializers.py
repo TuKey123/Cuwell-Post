@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.db.models import F
 from . import models
 import paypalrestsdk
-import datetime
+from datetime import date, timedelta
 
 
 # region CART
@@ -157,6 +157,7 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
             order = models.Order(price=cart.post.price,
                                  quantity=cart.quantity,
                                  post=cart.post,
+                                 delivery_day=date.today() + timedelta(days=7),
                                  payee_email=cart.payee_email,
                                  payment=payment)
             orders.append(order)
