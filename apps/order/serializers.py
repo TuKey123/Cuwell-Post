@@ -264,7 +264,7 @@ class CheckOutSerializer(serializers.ModelSerializer):
         })
 
         if not paypal_payment.create():
-            raise serializers.ValidationError('can not create payment instance')
+            raise serializers.ValidationError(paypal_payment.error)
 
         return paypal_payment
 
