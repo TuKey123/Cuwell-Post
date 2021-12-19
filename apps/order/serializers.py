@@ -34,6 +34,14 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class CartCreationSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        user = self.context['request'].user['id']
+        post = attrs.get('post', None)
+        if post.user == user:
+            raise serializers.ValidationError('can not add to cart your post')
+
+        return super().validate(attrs)
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['user'] = instance.user
