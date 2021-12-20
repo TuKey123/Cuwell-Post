@@ -188,8 +188,7 @@ class StatisticViewSet(viewsets.GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
     authentication_classes = [Authentication]
-
-    # permission_classes = [AdminPermission]
+    permission_classes = [AdminPermission]
 
     def get_queryset(self):
         if self.action == 'get_payments_by_month':
