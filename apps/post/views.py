@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Count
 from rest_framework import viewsets, mixins, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
@@ -33,7 +33,7 @@ class PostViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category']
 
     def get_queryset(self):
-        return models.Post.objects.filter(quantity__gt=0).order_by('id').reverse()
+        return models.Post.objects.filter(quantity__gt=0, is_blocked=False).order_by('id').reverse()
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'get_posts_by_user_id':
@@ -46,8 +46,15 @@ class PostViewSet(viewsets.ModelViewSet):
             return serializers.PostUpdateSerializer
         elif self.action == 'update_image':
             return serializers.PostImageUpdateSerializer
+        elif self.action == 'block_post':
+            return serializers.BlockPostSerializer
         else:
             return serializers.PostCreationSerializer
+
+    def get_permissions(self):
+        if self.action == 'block_post':
+            return [AdminPermission()]
+        return super().get_permissions()
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -89,17 +96,27 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    @action(detail=True, methods=['put'], url_path='block')
+    def block_post(self, request, pk=None):
+        instance = models.Post.objects.filter(pk=pk).first()
+        serializer = self.get_serializer(instance=instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class PostAutoCompleteViewSet(viewsets.GenericViewSet,
                               mixins.ListModelMixin):
+    queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title', 'description', 'price']
     filterset_fields = ['category']
-    queryset = models.Post.objects.all()
 
     def get_queryset(self):
-        return models.Post.objects.filter(quantity__gt=0).order_by('id').reverse().only('title', 'description', 'price')
+        return models.Post.objects.filter(quantity__gt=0, is_blocked=False).order_by('id').reverse().only('title',
+                                                                                                          'description',
+                                                                                                          'price')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -140,8 +157,8 @@ class CategoryViewSet(viewsets.GenericViewSet,
                       mixins.CreateModelMixin,
                       mixins.RetrieveModelMixin,
                       mixins.DestroyModelMixin):
-    serializer_class = serializers.CategorySerializer
     queryset = models.Category.objects.all()
+    serializer_class = serializers.CategorySerializer
     authentication_classes = [Authentication]
 
 
@@ -150,8 +167,8 @@ class ReportTypeViewSet(viewsets.GenericViewSet,
                         mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.DestroyModelMixin):
-    serializer_class = serializers.ReportTypeSerializer
     queryset = models.ReportType.objects.all()
+    serializer_class = serializers.ReportTypeSerializer
     authentication_classes = [Authentication]
 
 
@@ -160,8 +177,8 @@ class PostReportViewSet(viewsets.GenericViewSet,
                         mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.DestroyModelMixin):
-    serializer_class = serializers.PostReportSerializer
     queryset = models.PostReport.objects.all()
+    serializer_class = serializers.PostReportSerializer
     authentication_classes = [Authentication]
 
 

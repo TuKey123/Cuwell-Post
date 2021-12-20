@@ -218,3 +218,16 @@ class PostReportSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'user': {'read_only': True}
         }
+
+
+class BlockPostSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        instance.is_blocked = validated_data['is_blocked']
+        return instance
+
+    class Meta:
+        model = models.Post
+        fields = ['is_blocked']
+        extra_kwargs = {
+            'is_blocked': {'required': True}
+        }
