@@ -122,7 +122,8 @@ class BuyerOrderSerializer(serializers.ModelSerializer):
                                  post=cart.post,
                                  buyer=buyer,
                                  payee_email=cart.payee_email,
-                                 payment=payment)
+                                 payment=payment,
+                                 status=models.Order.Status.ACCEPTED)
             orders.append(order)
 
         models.Order.objects.bulk_create(orders)
