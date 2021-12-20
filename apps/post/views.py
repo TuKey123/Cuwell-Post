@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum, F
 from rest_framework import viewsets, mixins, status
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
@@ -9,9 +9,11 @@ from core.authentication import Authentication, AdminPermission
 from core.pagination import StandardPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from datetime import date
 
 from . import serializers
 from . import models
+from apps.order import models as order_models
 
 
 class SearchAutoComplete(filters.SearchFilter):
@@ -186,7 +188,13 @@ class StatisticViewSet(viewsets.GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
     authentication_classes = [Authentication]
-    permission_classes = [AdminPermission]
+
+    # permission_classes = [AdminPermission]
+
+    def get_queryset(self):
+        if self.action == 'get_payments_by_month':
+            return order_models.Order.objects.all()
+        return models.Post.objects.all()
 
     @action(detail=False, methods=['get'], url_path=r'^users/number-of-posts')
     def get_posts_by_user(self, request):
@@ -202,5 +210,38 @@ class StatisticViewSet(viewsets.GenericViewSet):
         queryset = queryset.values('category', 'category__name').annotate(number_of_posts=Count('category'), ).order_by(
             '-number_of_posts')
         data = list(queryset)
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'^posts/by-month')
+    def get_posts_by_month(self, request):
+        month = date.today().month
+        previous_month = month - 1
+
+        current = self.get_queryset().filter(created_at__month=month).count()
+        previous = self.get_queryset().filter(created_at__month=previous_month).count()
+
+        data = {
+            'current': current,
+            'previous': previous,
+        }
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path=r'^payments/by-month')
+    def get_payments_by_month(self, request):
+        month = date.today().month
+        previous_month = month - 1
+
+        current = self.get_queryset().filter(created_at__month=month).values('created_at').aggregate(
+            total=Sum(F('price') * F('quantity')))['total']
+
+        previous = self.get_queryset().filter(created_at__month=previous_month).values('created_at').aggregate(
+            total=Sum(F('price') * F('quantity')))['total']
+
+        data = {
+            'current': current or 0,
+            'previous': previous or 0,
+        }
 
         return Response(data=data, status=status.HTTP_200_OK)
