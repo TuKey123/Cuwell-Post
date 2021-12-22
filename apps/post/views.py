@@ -5,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError, Error
+from rest_framework.views import APIView
+
 from core.authentication import Authentication, AdminPermission
 from core.pagination import StandardPagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -244,3 +246,4 @@ class StatisticViewSet(viewsets.GenericViewSet):
         }
 
         return Response(data=data, status=status.HTTP_200_OK)
+

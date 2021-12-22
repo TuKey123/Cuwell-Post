@@ -94,6 +94,8 @@ def validate_carts_before_order(buyer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+
     class Meta:
         model = models.Order
         fields = '__all__'
