@@ -2,6 +2,8 @@ from django.db import transaction
 from apps.post import models as post_models
 from rest_framework import serializers
 from django.db.models import F
+
+from post_service import settings
 from . import models
 import paypalrestsdk
 from datetime import datetime, date, timedelta
@@ -189,7 +191,7 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
                               {
                                   "recipient_type": "EMAIL",
                                   "amount": {
-                                      "value": order.price * order.quantity,
+                                      "value": round(order.price * order.quantity * 0.93, 2),
                                       "currency": "USD"
                                   },
                                   "receiver": order.payee_email,
@@ -266,8 +268,8 @@ class CheckOutSerializer(serializers.ModelSerializer):
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": "https://cuwell-post-service.herokuapp.com/api/v1/payment/execute",
-                "cancel_url": "https://cuwell-post-service.herokuapp.com/api/v1/"
+                "return_url": settings.POST_SERVICE_URL + "payment/execute",
+                "cancel_url": settings.POST_SERVICE_URL
             },
             "transactions": self.transactions(carts)
         })

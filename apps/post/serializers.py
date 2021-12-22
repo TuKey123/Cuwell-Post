@@ -42,29 +42,32 @@ class PostDetailSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, required=False)
 
     def user_detail(self):
-        user_id = self.instance.user
-        token = self.context['request'].META.get('HTTP_AUTHORIZATION').split(' ')[1]
-        url = settings.AUTH_SERVICE_URL + user_id
+        try:
+            user_id = self.instance.user
+            token = self.context['request'].META.get('HTTP_AUTHORIZATION').split(' ')[1]
+            url = settings.AUTH_SERVICE_URL + user_id
 
-        headers = {
-            'Authorization': 'Bearer {}'.format(token)
-        }
-        response = requests.get(url, headers=headers)
+            headers = {
+                'Authorization': 'Bearer {}'.format(token)
+            }
+            response = requests.get(url, headers=headers)
 
-        if response.json()['statusCode'] != 200:
-            raise serializers.ValidationError('can not fetch user information')
+            if response.json()['statusCode'] != 200:
+                raise serializers.ValidationError('can not fetch user information')
 
-        data = response.json()['payload']
+            data = response.json()['payload']
 
-        return {
-            "id": user_id,
-            "email": data['email'],
-            "name": data['name'],
-            "phone": data['phone'],
-            "rating": data['ratingAverage'],
-            "address": data['address'],
-            'paypalEmail': data['paypalEmail']
-        }
+            return {
+                "id": user_id,
+                "email": data['email'],
+                "name": data['name'],
+                "phone": data['phone'],
+                "rating": data['ratingAverage'],
+                "address": data['address'],
+                'paypalEmail': data['paypalEmail']
+            }
+        except Exception as e:
+            raise serializers.ValidationError(e)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
