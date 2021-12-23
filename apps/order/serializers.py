@@ -95,6 +95,9 @@ def validate_carts_before_order(buyer):
 
 class OrderSerializer(serializers.ModelSerializer):
     post = PostSerializer()
+    # street = serializers.CharField(source='payment__street')
+    # district = serializers.CharField(source='payment__district')
+    # city = serializers.CharField(source='payment__city')
 
     class Meta:
         model = models.Order
@@ -111,7 +114,8 @@ class BuyerOrderSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create_payment(self):
-        payment = models.Payment(**self.validated_data)
+        buyer = self.context['request'].user['id']
+        payment = models.Payment(**self.validated_data, buyer=buyer)
         payment.save()
         return payment
 
