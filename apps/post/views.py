@@ -207,7 +207,8 @@ class StatisticViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'], url_path=r'^users/number-of-orders')
     def get_orders_by_user(self, request):
-        queryset = order_models.Order.objects.values('user').annotate(number_of_orders=Count('user')).order_by(
+        queryset = order_models.Order.objects.values('payment__buyer').annotate(
+            number_of_orders=Count('payment__buyer')).order_by(
             '-number_of_orders')
         data = list(queryset)
 
