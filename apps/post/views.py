@@ -94,7 +94,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path=r'^users/(?P<user_id>[\w\-]+)')
     def get_posts_by_user_id(self, request, user_id=None):
-        queryset = self.get_queryset().filter(user=user_id)
+        queryset = models.Post.objects.filter(user=user_id)
         page = self.paginate_queryset(queryset)
 
         serializer = self.get_serializer(page, many=True)
