@@ -205,6 +205,14 @@ class StatisticViewSet(viewsets.GenericViewSet):
 
         return Response(data=data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'], url_path=r'^users/number-of-orders')
+    def get_orders_by_user(self, request):
+        queryset = order_models.Order.objects.values('user').annotate(number_of_orders=Count('user')).order_by(
+            '-number_of_orders')
+        data = list(queryset)
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['get'], url_path=r'^categories/number-of-posts')
     def get_posts_by_category(self, request):
         queryset = self.get_queryset()
@@ -246,4 +254,3 @@ class StatisticViewSet(viewsets.GenericViewSet):
         }
 
         return Response(data=data, status=status.HTTP_200_OK)
-
