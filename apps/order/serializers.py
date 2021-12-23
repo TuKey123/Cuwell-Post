@@ -24,7 +24,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         ref_name = "order_post"
         model = post_models.Post
-        fields = ['id', 'title', 'price', 'description', 'images']
+        fields = ['id', 'title', 'price', 'description', 'images', 'user']
 
 
 class CartSerializer(serializers.ModelSerializer):

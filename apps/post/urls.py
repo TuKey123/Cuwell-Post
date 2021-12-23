@@ -25,4 +25,5 @@ urlpatterns = [
     path('report-types/', include(report_types.urls)),
     path('post-reposts/', include(post_reports.urls)),
     path('statistics/', include(statistics.urls)),
+    path('users/<int:id>/', views.UserViewSet.as_view()),
 ]

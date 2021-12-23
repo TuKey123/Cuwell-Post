@@ -26,6 +26,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     quantity = models.IntegerField(default=1, validators=[MinValueValidator(0)])
     is_blocked = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
 
 class PostImage(models.Model):

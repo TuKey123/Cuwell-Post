@@ -254,3 +254,18 @@ class StatisticViewSet(viewsets.GenericViewSet):
         }
 
         return Response(data=data, status=status.HTTP_200_OK)
+
+
+class UserViewSet(APIView):
+    authentication_classes = [Authentication]
+    permission_classes = [AdminPermission]
+
+    def delete(self, request, id):
+        queryset = models.Post.objects.filter(user=id)
+
+        if not queryset:
+            return Response(data='user doesnt exist', status=status.HTTP_400_BAD_REQUEST)
+
+        queryset.update(is_delete=True)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
