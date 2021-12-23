@@ -95,9 +95,9 @@ def validate_carts_before_order(buyer):
 
 class OrderSerializer(serializers.ModelSerializer):
     post = PostSerializer()
-    # street = serializers.CharField(source='payment__street')
-    # district = serializers.CharField(source='payment__district')
-    # city = serializers.CharField(source='payment__city')
+    street = serializers.CharField(source='payment.street')
+    district = serializers.CharField(source='payment.district')
+    city = serializers.CharField(source='payment.city')
 
     class Meta:
         model = models.Order
