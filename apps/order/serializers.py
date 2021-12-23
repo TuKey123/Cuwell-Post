@@ -124,7 +124,6 @@ class BuyerOrderSerializer(serializers.ModelSerializer):
             order = models.Order(price=cart.post.price,
                                  quantity=cart.quantity,
                                  post=cart.post,
-                                 buyer=buyer,
                                  payee_email=cart.payee_email,
                                  payment=payment,
                                  status=models.Order.Status.ACCEPTED)
