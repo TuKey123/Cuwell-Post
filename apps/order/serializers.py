@@ -35,6 +35,18 @@ class CartSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CartUpdateSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        if self.instance.post.quantity < attrs['quantity']:
+            raise serializers.ValidationError('quantity must be less than stock')
+
+        return super().validate(attrs)
+
+    class Meta:
+        model = models.Cart
+        fields = ['quantity']
+
+
 class CartCreationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = self.context['request'].user['id']

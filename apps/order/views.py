@@ -19,6 +19,8 @@ class CartViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return serializers.CartCreationSerializer
+        elif self.action == 'update' or self.action == 'partial_update':
+            return serializers.CartUpdateSerializer
         return serializers.CartSerializer
 
     def update(self, request, *args, **kwargs):
