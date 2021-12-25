@@ -81,7 +81,7 @@ class SellerOrderViewSet(viewsets.GenericViewSet,
         return models.Order.objects.filter(post__user=user)
 
     def get_serializer_class(self):
-        if self.action == 'update':
+        if self.action == 'update' or self.action == 'partial_update':
             return serializers.SellerOrderSerializer
         return serializers.OrderSerializer
 
