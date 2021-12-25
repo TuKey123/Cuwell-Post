@@ -145,6 +145,7 @@ class PostCreationSerializer(serializers.ModelSerializer):
 
                 return validated_data
         except Exception as e:
+            print(e)
             raise serializers.ValidationError(e)
 
     class Meta:
