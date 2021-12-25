@@ -219,6 +219,9 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
         })
         paypal_payout.create()
 
+        if paypal_payout.error:
+            raise serializers.ValidationError('can not execute payment')
+
     def update(self, instance, validated_data):
         payer_id = validated_data.get('payer_id', None)
         paypal_payment = paypalrestsdk.Payment.find(instance.payment_id)
@@ -286,7 +289,7 @@ class CheckOutSerializer(serializers.ModelSerializer):
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": settings.POST_SERVICE_URL + "payment/execute",
+                "return_url": 'http://127.0.0.1:8000/api/v1/' + "payment/execute",
                 "cancel_url": settings.POST_SERVICE_URL
             },
             "transactions": self.transactions(carts)

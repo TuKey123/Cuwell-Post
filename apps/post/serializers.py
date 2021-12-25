@@ -1,7 +1,11 @@
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from rest_framework import serializers
+
 from . import models
+from apps.order import models as order_models
+
 import requests
 
 
@@ -28,8 +32,9 @@ class PostSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
 
         representation['total'] = instance.quantity
-        representation['sell'] = len(instance.carts.all())
-        representation['stock'] = representation['total'] - representation['sell']
+        representation['sell'] = instance.orders.filter(Q(payment__checkout=True) |
+                                                        Q(status=order_models.Order.Status.DELIVERED)).count()
+        representation['stock'] = representation['total']
 
         return representation
 
@@ -73,8 +78,9 @@ class PostDetailSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
 
         representation['total'] = instance.quantity
-        representation['sell'] = len(instance.carts.all())
-        representation['stock'] = representation['total'] - representation['sell']
+        representation['sell'] = instance.orders.filter(Q(payment__checkout=True) |
+                                                        Q(status=order_models.Order.Status.DELIVERED)).count()
+        representation['stock'] = representation['total']
         representation['user'] = self.user_detail()
 
         representation.pop('quantity')
