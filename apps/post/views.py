@@ -38,8 +38,8 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == 'partial_update' or self.action == 'update':
-            return models.Post.objects.filter(is_blocked=False).order_by('id').reverse()
-        return models.Post.objects.filter(quantity__gt=0, is_blocked=False).order_by('id').reverse()
+            return models.Post.objects.filter(status=models.Post.Status.ACTIVE).order_by('id').reverse()
+        return models.Post.objects.filter(quantity__gt=0, status=models.Post.Status.ACTIVE).order_by('id').reverse()
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'get_posts_by_user_id':
@@ -120,9 +120,10 @@ class PostAutoCompleteViewSet(viewsets.GenericViewSet,
     filterset_fields = ['category']
 
     def get_queryset(self):
-        return models.Post.objects.filter(quantity__gt=0, is_blocked=False).order_by('id').reverse().only('title',
-                                                                                                          'description',
-                                                                                                          'price')
+        return models.Post.objects.filter(quantity__gt=0, status=models.Post.Status.ACTIVE).order_by(
+            'id').reverse().only('title',
+                                 'description',
+                                 'price')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

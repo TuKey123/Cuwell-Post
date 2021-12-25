@@ -230,13 +230,21 @@ class PostReportSerializer(serializers.ModelSerializer):
 
 
 class BlockPostSerializer(serializers.ModelSerializer):
+    is_blocked = serializers.BooleanField(default=True)
+
     def update(self, instance, validated_data):
-        instance.is_blocked = validated_data['is_blocked']
-        return instance
+        if validated_data['is_blocked']:
+            instance.status = models.Post.Status.BLOCKED
+        else:
+            instance.status = models.Post.Status.ACTIVE
+
+        instance.save()
+
+        return validated_data
 
     class Meta:
         model = models.Post
         fields = ['is_blocked']
         extra_kwargs = {
-            'is_blocked': {'required': True}
+            'is_blocked': {'read_only': True}
         }

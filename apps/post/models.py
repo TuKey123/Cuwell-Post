@@ -12,8 +12,7 @@ class Category(models.Model):
 class Post(models.Model):
     class Status(models.IntegerChoices):
         ACTIVE = 1
-        SELL = 2
-        BLOCKED = 3
+        BLOCKED = 2
 
     user = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
@@ -25,7 +24,6 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     quantity = models.IntegerField(default=1, validators=[MinValueValidator(0)])
-    is_blocked = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
 
