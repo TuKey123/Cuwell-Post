@@ -37,6 +37,8 @@ class PostViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category']
 
     def get_queryset(self):
+        if self.action == 'partial_update' or self.action == 'update':
+            return models.Post.objects.filter(is_blocked=False).order_by('id').reverse()
         return models.Post.objects.filter(quantity__gt=0, is_blocked=False).order_by('id').reverse()
 
     def get_serializer_class(self):
