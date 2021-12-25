@@ -289,7 +289,7 @@ class CheckOutSerializer(serializers.ModelSerializer):
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": 'http://127.0.0.1:8000/api/v1/' + "payment/execute",
+                "return_url": settings.POST_SERVICE_URL + "payment/execute",
                 "cancel_url": settings.POST_SERVICE_URL
             },
             "transactions": self.transactions(carts)
