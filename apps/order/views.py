@@ -63,7 +63,8 @@ class BuyerOrderViewSet(viewsets.GenericViewSet,
 
     def get_queryset(self):
         user = self.request.user['id']
-        return models.Order.objects.filter(payment__buyer=user)
+        print(user)
+        return models.Order.objects.filter(payment__buyer=user).order_by('id').reverse()
 
     def get_serializer_class(self):
         if self.action == 'create':

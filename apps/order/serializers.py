@@ -209,7 +209,7 @@ class PaymentExecutionSerializer(serializers.ModelSerializer):
                               {
                                   "recipient_type": "EMAIL",
                                   "amount": {
-                                      "value": round(order.price * order.quantity * 0.93, 2),
+                                      "value": round(order.price * order.quantity * 0.9, 2),
                                       "currency": "USD"
                                   },
                                   "receiver": order.payee_email,
